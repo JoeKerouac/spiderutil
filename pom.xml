@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.joe.spider</groupId>
+    <artifactId>util</artifactId>
+    <version>1.0</version>
+
+    <properties>
+        <net.version>1.4</net.version>
+        <utils.version>1.7</utils.version>
+        <mybatis.version>3.4.5</mybatis.version>
+        <druid.version>1.1.6</druid.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <java.version>1.8</java.version>
+        <mysql.version>6.0.6</mysql.version>
+        <yaml.version>1.13</yaml.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.935237604</groupId>
+            <artifactId>net</artifactId>
+            <version>${net.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.935237604</groupId>
+            <artifactId>utils</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+
+        <!--mybatis-->
+        <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
+        </dependency>
+        <!--数据源-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+        <!--mysql-connector-->
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+
+        <!--日志-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <!--yaml解析-->
+        <!-- https://mvnrepository.com/artifact/com.esotericsoftware.yamlbeans/yamlbeans -->
+        <dependency>
+            <groupId>com.esotericsoftware.yamlbeans</groupId>
+            <artifactId>yamlbeans</artifactId>
+            <version>${yaml.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--maven编译设置-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
