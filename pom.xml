@@ -9,14 +9,15 @@
     <version>1.0</version>
 
     <properties>
-        <net.version>1.4</net.version>
+        <java.version>1.8</java.version>
+        <net.version>1.5</net.version>
         <utils.version>1.8.003</utils.version>
         <mybatis.version>3.4.5</mybatis.version>
         <druid.version>1.1.6</druid.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <java.version>1.8</java.version>
         <mysql.version>6.0.6</mysql.version>
         <yaml.version>1.13</yaml.version>
+        <lombok.version>1.16.8</lombok.version>
     </properties>
 
 
@@ -26,7 +27,6 @@
             <artifactId>net</artifactId>
             <version>${net.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.github.JoeKerouac</groupId>
             <artifactId>utils</artifactId>
@@ -59,6 +59,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <!-- 快速生成get set方法 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!--yaml解析-->
         <!-- https://mvnrepository.com/artifact/com.esotericsoftware.yamlbeans/yamlbeans -->
