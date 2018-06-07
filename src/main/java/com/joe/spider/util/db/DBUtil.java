@@ -6,6 +6,8 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.joe.utils.scan.ClassScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -56,6 +58,21 @@ public class DBUtil {
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment(id, transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
+        //扫描mapper
+        scanMapper(configuration, packages);
+        //扫描ResultMap
+        scanResutlMap(configuration, packages);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        return sqlSessionFactory;
+    }
+
+    /**
+     * 扫描指定包下的mapper
+     *
+     * @param configuration configuration
+     * @param packages      包集合
+     */
+    private static void scanMapper(Configuration configuration, String... packages) {
         ClassScanner scanner = ClassScanner.getInstance();
         log.debug("开始扫描包{}下的Mapper列表", packages);
         List<Class<?>> mappers = scanner.scan(Collections.singletonList(clazz -> {
@@ -67,8 +84,27 @@ public class DBUtil {
         }), packages);
         log.debug("扫描到的Mapper列表为：{}", mappers);
         mappers.forEach(configuration::addMapper);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-        return sqlSessionFactory;
+    }
+
+    /**
+     * 扫描指定包下的ResultMap
+     *
+     * @param configuration configuration
+     * @param packages      包集合
+     */
+    private static void scanResutlMap(Configuration configuration, String... packages) {
+        ClassScanner scanner = ClassScanner.getInstance();
+        log.debug("开始扫描包{}下的ResultMap列表", packages);
+        List<Class<?>> resultMaps = scanner.scan(Collections.singletonList(clazz -> {
+            boolean flag = clazz.getAnnotation(ResultMappingDefine.class) != null;
+            if (flag) {
+                log.debug("Class [{}] 将被加入ResultMap列表", clazz);
+            }
+            return flag;
+        }), packages);
+        log.debug("扫描到的ResultMap列表为：{}", resultMaps);
+        resultMaps.parallelStream().forEach(clazz -> configuration.addResultMap(ResultMappingHelper.build(clazz,
+                configuration)));
     }
 
     /**
