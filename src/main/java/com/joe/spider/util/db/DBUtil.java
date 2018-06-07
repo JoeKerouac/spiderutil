@@ -7,7 +7,6 @@ import com.joe.utils.scan.ClassScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -58,10 +57,11 @@ public class DBUtil {
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment(id, transactionFactory, dataSource);
         Configuration configuration = new Configuration(environment);
-        //扫描mapper
-        scanMapper(configuration, packages);
+        //说明：必须先扫描ResultMap，然后扫描Mapper，不然如果Mapper中使用ResultMap将会报错
         //扫描ResultMap
         scanResutlMap(configuration, packages);
+        //扫描mapper
+        scanMapper(configuration, packages);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return sqlSessionFactory;
     }
@@ -76,8 +76,8 @@ public class DBUtil {
         ClassScanner scanner = ClassScanner.getInstance();
         log.debug("开始扫描包{}下的Mapper列表", packages);
         List<Class<?>> mappers = scanner.scan(Collections.singletonList(clazz -> {
-            boolean flag = clazz.getAnnotation(Mapper.class) != null;
-            if (flag) {
+            boolean flag = clazz.getAnnotation(Mapper.class) == null;
+            if (!flag) {
                 log.debug("Class [{}] 将被加入Mapper列表", clazz);
             }
             return flag;
@@ -96,15 +96,19 @@ public class DBUtil {
         ClassScanner scanner = ClassScanner.getInstance();
         log.debug("开始扫描包{}下的ResultMap列表", packages);
         List<Class<?>> resultMaps = scanner.scan(Collections.singletonList(clazz -> {
-            boolean flag = clazz.getAnnotation(ResultMappingDefine.class) != null;
-            if (flag) {
+            boolean flag = clazz.getAnnotation(ResultMapDefine.class) == null;
+            if (!flag) {
                 log.debug("Class [{}] 将被加入ResultMap列表", clazz);
             }
             return flag;
         }), packages);
         log.debug("扫描到的ResultMap列表为：{}", resultMaps);
-        resultMaps.parallelStream().forEach(clazz -> configuration.addResultMap(ResultMappingHelper.build(clazz,
-                configuration)));
+        resultMaps.parallelStream().forEach(clazz -> {
+            ResultMap resultMap = ResultMapHelper.build(clazz, configuration);
+            if (resultMap != null) {
+                configuration.addResultMap(resultMap);
+            }
+        });
     }
 
     /**

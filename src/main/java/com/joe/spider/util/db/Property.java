@@ -17,5 +17,5 @@ public @interface Property {
      *
      * @return 字段别名
      */
-    String alias() default "";
+    String value() default "";
 }
