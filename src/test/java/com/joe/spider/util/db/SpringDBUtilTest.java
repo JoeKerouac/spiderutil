@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 
 /**
  * SpringDBUtil测试
@@ -39,9 +40,9 @@ public class SpringDBUtilTest {
     }
 
     @Bean
-    public SqlSessionFactoryBean sqlSessionFactory() {
+    public SqlSessionFactoryBean sqlSessionFactory(ResourceLoader loader) {
         return SpringDBUtil.buildSqlSessionFactoryBean(DBUtilTest.url, DBUtilTest.username, DBUtilTest.password,
-                "123", "com.joe.spider");
+                "123", loader, "com.joe.spider");
     }
 
     @Bean

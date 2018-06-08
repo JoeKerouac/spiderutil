@@ -36,6 +36,12 @@ public class DBConfig {
     @Setter
     private String id;
     /**
+     * mapper文件（xml）位置，默认所有Classpath下边所有后缀为Mapper.xml的文件都认为是Mapper
+     */
+    @Getter
+    @Setter
+    private String mappersLocation = "classpath*:**/*Mapper.xml";
+    /**
      * 类型别名集合
      */
     @Getter
