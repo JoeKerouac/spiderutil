@@ -1,9 +1,6 @@
 package com.joe.spider.util.db;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * mapper注解，带有该注解的mapper会被自动发现
@@ -13,5 +10,12 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface Mapper {
+    /**
+     * 是否是使用XML编写sql的
+     *
+     * @return 默认不是，即默认认为是使用注解写sql的
+     */
+    boolean useXml() default false;
 }

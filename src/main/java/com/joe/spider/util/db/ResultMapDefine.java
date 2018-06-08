@@ -4,6 +4,8 @@ import java.lang.annotation.*;
 
 /**
  * ResultMapping定义类上需要加上该注解才能被发现
+ * <p>
+ * 该注解定义的ResultMap在xml中也能使用
  *
  * @author joe
  * @version 2018.06.07 09:53

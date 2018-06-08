@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.joe.spider.util.db.HistoryMapper">
+    <!-- 使用注解定义的resultMap -->
+    <select id="getHistoryByResultMap" resultMap="default.History">
+        select * from history limit 0 , 10
+    </select>
+
+    <!--使用注解定义的resultType-->
+    <select id="getHistoryByResultType" resultType="History">
+        select * from history limit 0 , 10
+    </select>
+</mapper>
