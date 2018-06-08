@@ -14,7 +14,7 @@ public void testSpider() throws Exception {
     spider.addTask("http://127.0.0.1:12345/api/getUsers", System.out::println);
 }
 ```
-以上代码会请求一次http://127.0.0.1:12345/api/getUsers，然后将请求结果（字符串）传给回调函数，如果需要请求多次，那么只需要多次调用addTask方法即可，创建Spider的构造器接受一个long类型的数字，表示对同一域名两次抓取的时间间隔，单位为毫秒，用于流控，防止请求过快。
+以上代码会请求一次`http://127.0.0.1:12345/api/getUsers`，然后将请求结果（字符串）传给回调函数，如果需要请求多次，那么只需要多次调用addTask方法即可，创建Spider的构造器接受一个long类型的数字，表示对同一域名两次抓取的时间间隔，单位为毫秒，用于流控，防止请求过快。
 
 # DB工具
 
