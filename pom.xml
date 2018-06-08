@@ -11,6 +11,12 @@
     <description>简单爬虫、数据库工具类</description>
     <url>https://github.com/JoeKerouac/spiderutil</url>
 
+    <parent>
+        <groupId>com.github.JoeKerouac</groupId>
+        <artifactId>java-parent</artifactId>
+        <version>1.0</version>
+    </parent>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -115,31 +121,14 @@
         </profile>
     </profiles>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <net.version>1.5</net.version>
-        <utils.version>1.8.004</utils.version>
-        <mybatis.version>3.4.5</mybatis.version>
-        <mybatis-spring.version>1.3.2</mybatis-spring.version>
-        <druid.version>1.1.6</druid.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <mysql.version>6.0.6</mysql.version>
-        <yaml.version>1.13</yaml.version>
-        <lombok.version>1.16.8</lombok.version>
-        <junit.version>4.12</junit.version>
-        <spring.version>4.3.14.RELEASE</spring.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.JoeKerouac</groupId>
             <artifactId>net</artifactId>
-            <version>${net.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.JoeKerouac</groupId>
             <artifactId>utils</artifactId>
-            <version>${utils.version}</version>
         </dependency>
 
         <!--mybatis-->
@@ -147,52 +136,44 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>${mybatis.version}</version>
         </dependency>
         <!--mybatis-spring整合-->
         <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
-            <version>${mybatis-spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
         <!--数据源-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>${druid.version}</version>
         </dependency>
         <!--mysql-connector-->
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.version}</version>
         </dependency>
 
         <!--日志-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <!-- 快速生成get set方法 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <!--yaml解析-->
@@ -200,13 +181,11 @@
         <dependency>
             <groupId>com.esotericsoftware.yamlbeans</groupId>
             <artifactId>yamlbeans</artifactId>
-            <version>${yaml.version}</version>
         </dependency>
         <!--test-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -217,11 +196,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF8</encoding>
+                    <encoding>${encode}</encoding>
                 </configuration>
             </plugin>
         </plugins>
