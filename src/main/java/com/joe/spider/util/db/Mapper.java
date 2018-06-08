@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Mapper {
     /**
-     * 是否是使用XML编写sql的
+     * 是否是使用XML编写sql的（暂时无用，请勿赋值）
      *
      * @return 默认不是，即默认认为是使用注解写sql的
      */
