@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 定义在其他类中必须是public static，基本类型必须是对应的包装类型
+ * 定义在其他类中必须是static的
  *
  * @author joe
  * @version 2018.06.08 10:31
