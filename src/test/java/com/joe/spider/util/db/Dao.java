@@ -12,9 +12,9 @@ import java.util.List;
 @Mapper
 public interface Dao {
     /**
-     * 查找最多10条history
-     * @return
-     * 最多10条history
+     * 查找最多10条history（ResultMap使用注解定义的ResultMap，如果需要也可以使用xml中定义的ResultMap）
+     *
+     * @return 最多10条history
      */
     @ResultMap("default.History")
     @Select("select * from history limit 0 , 10")

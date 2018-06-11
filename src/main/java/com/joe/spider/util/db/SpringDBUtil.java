@@ -116,7 +116,7 @@ public class SpringDBUtil {
      * 构建MapperScannerConfigurer（用于扫描mapper接口）
      *
      * @param sqlSessionFactoryBeanName SqlSessionFactoryBean的名称
-     * @param basePackage               要扫描的根目录，该目录下所有接口都会被当做bean处理
+     * @param basePackage               要扫描的根目录，该目录下所有接口都会被当做bean处理（该路径要尽可能精确同时除了mapper接口外尽量不要放置其他接口，不然都会当做mapper来处理生成bean，占用多余内存）
      * @return MapperScannerConfigurer
      */
     public static MapperScannerConfigurer buildMapperScannerConfigurer(String sqlSessionFactoryBeanName, String
