@@ -32,20 +32,107 @@ public class SpiderTest {
 ## 使用@ResultMapDefine注解定义ResultMap的能力
 使用该工具可以使用注解@ResultMapDefine定义ResultMap，使用该注解定义的ResultMap可以用在Xml中。
 
+### 为什么使用该能力
+我们先看下传统xml定义ResultMap的方案：
+```xml
+<resultMap id="History" type="com.joe.spider.util.db.History">
+  <id column="id" property="id"/>
+  <result column="contain" property="contain"/>
+  <result column="ip" property="ip"/>
+  <result column="time" property="time"/>
+  <result column="keyboard" property="key"/>
+</resultMap>
+```
+然后看下使用@ResultMapDefine注解如何定义一个ResultMap：
+```java
+package com.joe.spider.util.db;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 定义在其他类中必须是public static，基本类型必须是对应的包装类型
+ *
+ * @author joe
+ * @version 2018.06.08 10:31
+ */
+@ResultMapDefine
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class History {
+    private String id;
+    private boolean contain;
+    private String ip;
+    private String time;
+    /**
+     * 数据库中该字段名为keyboard，映射到pojo中为key
+     */
+    @Property("keyboard")
+    private String key;
+}
+```
+这样一个和上边xml效果一样的resultMap就定义出来了。
+
+可能看到这里有的人会问，这不就是把ResultMap定义从xml转到java类里边的吗？有什么不同吗？注意：在xml中定义resultMap时History类也
+是需要存在的，只是少一个@ResultMapDefine和@Property注解，而正是该注解代替了xml中7行resultMap定义，这样区别看出来了吗？从此定
+义ResultMap只需创建完pojo类后添加注解即可搞定，而不用再去xml中写一大堆定义。试想一下，如果你有50个这样的pojo，每个pojo给你节
+省7行代码，那50个就是350行代码，而且相信实际项目中大多数表字段都不止7个，这会省去你相当多的时间，而且如果使用xml的方式，当你
+的pojo名字更改或者字段更改，那还后续还需要在xml中维护更改，也是相当麻烦，而是用注解则就没有这种烦恼了。
+
 ## 使用@Mapper注解定义Mapper的能力
 使用该工具可以使用注解@Mapper定义Mapper（使用注解写sql而不是xml），定义的Mapper集成spring后可以注入。
 
+### 为什么使用该能力
+
+该能力主要是在使用注解形式编写SQL的mapper时用到的，首先看Mapper定义：
+```java
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+
+/**
+ * @author joe
+ * @version 2018.06.08 11:51
+ */
+@Mapper
+public interface Dao {
+    /**
+     * 查找最多10条history（ResultMap使用注解定义的ResultMap，如果需要也可以使用xml中定义的ResultMap）
+     *
+     * @return 最多10条history
+     */
+    @ResultMap("default.History")
+    @Select("select * from history limit 0 , 10")
+    List<History> selectAllHistory();
+}
+```
+使用这种Mapper时需要在mybatis的配置文件中加入以下内容：
+```xml
+<mappers>
+  <mapper class="Dao"/>
+</mappers>
+```
+
+在Mapper少的时候这样并不是太麻烦，但是如果Mapper多的话就很麻烦了，而且还容易忘，如果换成注解，则只需要添加包扫描，然后在
+自己的Mapper类上加入@Mapper注解，然后系统启动的时候会自动将这些Mapper添加到mybatis中而不用编写配置文件。
+
+
 ### 使用@TypeAlias注解定义TypeAlias的能力
-使用该工具可以使用注解@TypeAlias定义TypeAlias（等同于xml配置文件中的typeAlias）
+使用该工具可以使用注解@TypeAlias定义TypeAlias（等同于xml配置文件中的typeAlias），配合之前的注解使用，当使用注解的时候就
+不能使用mybatis的xml配置文件了，所以使用该注解代替mybatis配置文件中的typeAlias标签。
 
 ### 使用注解编写sql注意事项：
-- 使用注解的方式映射结果集的时候必须有对应的构造器（默认结果集使用全字段的构造器的方式注入，如果不想使用全字段的构造器的方式注入可以使用@ConstructorArgs注解，该注解和结果集类实际的构造器对应，构造器中不包含的结果集字段将使用setter注入）
+- 使用注解的方式映射结果集的时候必须有对应的构造器（默认结果集使用全字段的构造器的方式注入，如果不想使用全字段的构造器的
+方式注入可以使用@ConstructorArgs注解，该注解和结果集类实际的构造器对应，构造器中不包含的结果集字段将使用setter注入）。
 
-- 如果使用定义在类内的内部类作为结果集的映射时该类必须使用static修饰，例如static class User
+- 如果使用定义在类内的内部类作为结果集的映射时该类必须使用static修饰，例如static class User。
 
-- 八大基本类型的字段如果使用构造器注入那么必须与@ConstructorArgs注解中的@Arg注解中的javaType保持一致
+- 八大基本类型的字段如果使用构造器注入那么必须与@ConstructorArgs注解中的@Arg注解中的javaType保持一致。
 
-- 如果结果集中的字段与java中的class字段名不一致，可以使用@Results映射
+- 如果结果集中的字段与java中的class字段名不一致，可以使用@Results映射（或者直接使用resultMap）。
 
 ## DB工具使用示例说明：独立使用mybatis说明
 
