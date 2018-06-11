@@ -119,11 +119,6 @@ public interface Dao {
 在Mapper少的时候这样并不是太麻烦，但是如果Mapper多的话就很麻烦了，而且还容易忘，如果换成注解，则只需要添加包扫描，然后在
 自己的Mapper类上加入@Mapper注解，然后系统启动的时候会自动将这些Mapper添加到mybatis中而不用编写配置文件。
 
-
-### 使用@TypeAlias注解定义TypeAlias的能力
-使用该工具可以使用注解@TypeAlias定义TypeAlias（等同于xml配置文件中的typeAlias），配合之前的注解使用，当使用注解的时候就
-不能使用mybatis的xml配置文件了，所以使用该注解代替mybatis配置文件中的typeAlias标签。
-
 ### 使用注解编写sql注意事项：
 - 使用注解的方式映射结果集的时候必须有对应的构造器（默认结果集使用全字段的构造器的方式注入，如果不想使用全字段的构造器的
 方式注入可以使用@ConstructorArgs注解，该注解和结果集类实际的构造器对应，构造器中不包含的结果集字段将使用setter注入）。
@@ -165,6 +160,7 @@ ResultMap定义代码：
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.Alias;
 
 /**
  * 定义在其他类中必须是static的
@@ -173,7 +169,7 @@ import lombok.NoArgsConstructor;
  * @version 2018.06.08 10:31
  */
 @ResultMapDefine
-@TypeAlias
+@Alias("History")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

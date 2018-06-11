@@ -3,7 +3,6 @@ package com.joe.spider.util.db;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.filter.logging.Slf4jLogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
-import com.joe.utils.common.StringUtils;
 import com.joe.utils.type.ReflectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.Environment;
@@ -13,7 +12,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.apache.ibatis.type.TypeAliasRegistry;
 
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
@@ -36,10 +34,10 @@ public class DBUtil {
      * @param username 数据库用户名
      * @param password 数据库密码
      * @param id       SqlSessionFactory的ID
-     * @param packages 要扫描的包的集合（会自动将带扫描的包集合下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
+     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
      * @return SqlSessionFactory
      */
-    public static SqlSessionFactory build(String url, String username, String password, String id, String... packages) {
+    public static SqlSessionFactory build(String url, String username, String password, String id, String packages) {
         return build(new DBConfig(buildDatasource(url, username, password), id, packages), null);
     }
 
@@ -51,11 +49,11 @@ public class DBUtil {
      * @param password 数据库密码
      * @param id       SqlSessionFactory的ID
      * @param scanner  查找带有指定注解的Class的扫描器（可以为null）
-     * @param packages 要扫描的包的集合（会自动将带扫描的包集合下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
+     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(String url, String username, String password, String id,
-                                          ClassScannerByAnnotation scanner, String... packages) {
+                                          ClassScannerByAnnotation scanner, String packages) {
         return build(new DBConfig(buildDatasource(url, username, password), id, packages), scanner);
     }
 
@@ -166,11 +164,8 @@ public class DBUtil {
         scanResutlMap(configuration, scanner, config.getScanPackage());
         //扫描mapper
         scanMapper(configuration, scanner, config.getScanPackage());
-        //扫描类型别名
-        scanTypeAlias(config, scanner);
-        //注册类型别名
-        TypeAliasRegistry registry = configuration.getTypeAliasRegistry();
-        config.getTypeAlias().forEach(registry::registerAlias);
+        //扫描类型别名并注册
+        configuration.getTypeAliasRegistry().registerAliases(config.getScanPackage());
         return configuration;
     }
 
@@ -200,22 +195,6 @@ public class DBUtil {
                 (Collectors.toList());
         log.debug("扫描到的Mapper列表为：{}", mappers);
         return mappers;
-    }
-
-    /**
-     * 扫描指定报下的类型别名并加入DBConfig
-     *
-     * @param config  DB配置
-     * @param scanner 查找带有指定注解的Class的扫描器
-     */
-    static void scanTypeAlias(DBConfig config, ClassScannerByAnnotation scanner) {
-        List<Class<?>> classes = scanner.scan(TypeAlias.class, config.getScanPackage());
-        classes.parallelStream().forEach(clazz -> {
-            TypeAlias typeAlias = clazz.getAnnotation(TypeAlias.class);
-            String alias = typeAlias.alias();
-            alias = StringUtils.isEmpty(alias) ? clazz.getSimpleName() : alias;
-            config.addTypeAlias(alias, clazz);
-        });
     }
 
     /**

@@ -39,8 +39,7 @@ public class SpringDBUtil {
      * @return SqlSessionFactoryBean
      */
     public static SqlSessionFactoryBean buildSqlSessionFactoryBean(String url, String username, String password,
-                                                                   String id, ResourceLoader loader, String...
-                                                                           packages) {
+                                                                   String id, ResourceLoader loader, String packages) {
         DataSource dataSource = buildDatasource(url, username, password);
         return buildSqlSessionFactoryBean(new DBConfig(dataSource, id, packages), loader);
     }
