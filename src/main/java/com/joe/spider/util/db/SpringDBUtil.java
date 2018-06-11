@@ -4,13 +4,11 @@ import com.joe.utils.common.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -90,7 +88,7 @@ public class SpringDBUtil {
         bean.setDataSource(config.getDataSource());
         if (resource == null) {
             log.info("使用注解配置SqlSessionFactoryBean");
-            bean.setConfiguration(buildConfiguration(config));
+            bean.setConfiguration(buildConfiguration(config, null));
             log.debug("查找mapper文件");
             String mapperLocation = config.getMappersLocation();
             if (!StringUtils.isEmpty(mapperLocation)) {
@@ -116,7 +114,8 @@ public class SpringDBUtil {
      * 构建MapperScannerConfigurer（用于扫描mapper接口）
      *
      * @param sqlSessionFactoryBeanName SqlSessionFactoryBean的名称
-     * @param basePackage               要扫描的根目录，该目录下所有接口都会被当做bean处理（该路径要尽可能精确同时除了mapper接口外尽量不要放置其他接口，不然都会当做mapper来处理生成bean，占用多余内存）
+     * @param basePackage               要扫描的根目录，该目录下所有接口都会被当做bean处理（该路径要尽可能精确同时除了mapper接口外尽量不要放置其他接口，不然都会当做mapper
+     *                                  来处理生成bean，占用多余内存）
      * @return MapperScannerConfigurer
      */
     public static MapperScannerConfigurer buildMapperScannerConfigurer(String sqlSessionFactoryBeanName, String
