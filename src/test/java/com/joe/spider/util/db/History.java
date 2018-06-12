@@ -3,7 +3,6 @@ package com.joe.spider.util.db;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.ibatis.type.Alias;
 
 /**
  * 定义在其他类中必须是static的
@@ -12,7 +11,7 @@ import org.apache.ibatis.type.Alias;
  * @version 2018.06.08 10:31
  */
 @ResultMapDefine
-@Alias("History")
+//@Alias("History")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

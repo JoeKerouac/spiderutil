@@ -8,6 +8,8 @@ import javax.sql.DataSource;
 
 /**
  * mybatis配置
+ * <p>
+ * 如果{@link #scanPackage scanPackage}和{@link #configLocation configLocation}同时存在那么会合并两个定义
  *
  * @author joe
  * @version 2018.06.08 10:42
@@ -15,11 +17,25 @@ import javax.sql.DataSource;
 @ToString
 public class DBConfig {
     /**
-     * 要扫描的包的集合，会自动找到这些包下的ResultMap、mapper
+     * 要扫描的包的集合，会自动找到这些包下的ResultMap、mapper（可以为空，为空时configLocation不能为空，如果为空时将仅采
+     * 用本地配置文件配置Configuration）
+     *
+     * @see #configLocation
      */
     @Getter
     @Setter
     private String scanPackage;
+    /**
+     * 本地的xml配置文件，可以为空（为空时scanPackage不能为空，如果不为空时会采用config类和本地xml文件混合配置的方式配
+     * 置Configuration）
+     * <p>
+     * 支持协议前缀参照{@link com.joe.utils.common.ResourceHelper.ResourceProtocol ResourceProtocol}，如果没有指定协议前缀那么默认认为是classpath
+     *
+     * @see #scanPackage
+     */
+    @Getter
+    @Setter
+    private String configLocation;
     /**
      * 数据源
      */
@@ -27,7 +43,7 @@ public class DBConfig {
     @Setter
     private DataSource dataSource;
     /**
-     * ID
+     * 使用java配置的环境ID（对应xml配置文件中environment标签的id属性）
      */
     @Getter
     @Setter
@@ -38,6 +54,7 @@ public class DBConfig {
     @Getter
     @Setter
     private String mappersLocation = "classpath*:**/*Mapper.xml";
+
 
     public DBConfig() {
         this(null, null, null);

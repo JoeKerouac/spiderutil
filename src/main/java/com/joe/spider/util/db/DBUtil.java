@@ -3,8 +3,12 @@ package com.joe.spider.util.db;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.filter.logging.Slf4jLogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.joe.spider.util.db.exception.ConfigException;
+import com.joe.utils.common.ResourceHelper;
+import com.joe.utils.common.StringUtils;
 import com.joe.utils.type.ReflectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
@@ -16,7 +20,9 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -152,6 +158,55 @@ public class DBUtil {
      * @return Configuration
      */
     static Configuration buildConfiguration(DBConfig config, ClassScannerByAnnotation scanner) {
+        log.info("通过DBConfig[{}]构建Configuration", config);
+        String scanPackage = config.getScanPackage();
+        String configLocation = config.getConfigLocation();
+
+        if (StringUtils.isEmptyAll(scanPackage, configLocation)) {
+            throw new ConfigException("scanPackage和configLocation至少指定一个");
+        }
+
+        Configuration scanConfiguration = null;
+        Configuration xmlConfiguration = null;
+        Configuration configuration = null;
+
+        if (!StringUtils.isEmpty(scanPackage)) {
+            log.info("当前存在java配置的Configuration");
+            configuration = scanConfiguration = buildConfigurationByConfig(config, scanner);
+        }
+
+        if (!StringUtils.isEmpty(configLocation)) {
+            log.info("当前存在xml配置的Configuration");
+            configuration = xmlConfiguration = buildConfigurationByXml(config.getConfigLocation());
+        }
+        if (xmlConfiguration != null && scanConfiguration != null) {
+            //此时configuration指向的是xmlConfiguration
+            log.info("同时存在java配置的Configuration和XML配置的Configuration，合并两个Configuration");
+            //合并resultMap，由于Configuration放入resultmap的时候会放入两份，所以要先去重
+            Map<String, ResultMap> map = new HashMap<>();
+            scanConfiguration.getResultMaps().parallelStream().forEach(resultMap -> map.put(resultMap.getId(),
+                    resultMap));
+            map.values().parallelStream().forEach(configuration::addResultMap);
+            //合并的Mapper
+            scanConfiguration.getMapperRegistry().getMappers().parallelStream().forEach(configuration
+                    .getMapperRegistry()::addMapper);
+            //合并别名
+            scanConfiguration.getTypeAliasRegistry().getTypeAliases().forEach(configuration.getTypeAliasRegistry()
+                    ::registerAlias);
+            //使用Config中的Environment
+            configuration.setEnvironment(scanConfiguration.getEnvironment());
+        }
+        return configuration;
+    }
+
+    /**
+     * 使用java配置构建Configuration
+     *
+     * @param config  配置文件
+     * @param scanner 查找带有指定注解的Class的扫描器（可以为null，为null时会使用默认的）
+     * @return Configuration
+     */
+    private static Configuration buildConfigurationByConfig(DBConfig config, ClassScannerByAnnotation scanner) {
         //判断是否提供自定义scanner
         if (scanner == null) {
             scanner = ReflectUtil::getAllAnnotationPresentClass;
@@ -167,6 +222,16 @@ public class DBUtil {
         //扫描类型别名并注册
         configuration.getTypeAliasRegistry().registerAliases(config.getScanPackage());
         return configuration;
+    }
+
+    /**
+     * 使用xml配置文件加载Configuration
+     *
+     * @param configLocation xml配置文件位置
+     * @return Configuration
+     */
+    private static Configuration buildConfigurationByXml(String configLocation) {
+        return new XMLConfigBuilder(ResourceHelper.getResource(configLocation)).parse();
     }
 
     /**

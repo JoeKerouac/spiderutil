@@ -42,7 +42,7 @@ public class SpringDBUtilTest {
     @Bean
     public SqlSessionFactoryBean sqlSessionFactory(ResourceLoader loader) {
         return SpringDBUtil.buildSqlSessionFactoryBean(DBUtilTest.url, DBUtilTest.username, DBUtilTest.password,
-                "123", loader, "com.joe.spider");
+                "123", loader, "com.joe.spider","mybatis/config.xml");
     }
 
     @Bean
