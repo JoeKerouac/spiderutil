@@ -214,13 +214,18 @@ public class DBUtil {
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
         Environment environment = new Environment(config.getId(), transactionFactory, config.getDataSource());
         Configuration configuration = new Configuration(environment);
+
+        String scanPackage = config.getScanPackage();
+        String aliasScanPackage = config.getAliasScanPackage();
+
         //说明：必须先扫描ResultMap，然后扫描Mapper，不然如果Mapper中使用ResultMap将会报错
         //扫描ResultMap
-        scanResutlMap(configuration, scanner, config.getScanPackage());
+        scanResutlMap(configuration, scanner, scanPackage);
         //扫描mapper
-        scanMapper(configuration, scanner, config.getScanPackage());
+        scanMapper(configuration, scanner, scanPackage);
         //扫描类型别名并注册
-        configuration.getTypeAliasRegistry().registerAliases(config.getScanPackage());
+        configuration.getTypeAliasRegistry().registerAliases(StringUtils.isEmpty(aliasScanPackage) ? scanPackage :
+                aliasScanPackage);
         return configuration;
     }
 

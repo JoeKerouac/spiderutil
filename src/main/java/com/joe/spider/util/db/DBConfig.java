@@ -26,6 +26,16 @@ public class DBConfig {
     @Setter
     private String scanPackage;
     /**
+     * 别名扫描包，会自动将该包下所有除了匿名类、接口、成员类外的所有类注册别名，没有加@Alias注解的将会使用类名（不包括包名）作为别名。
+     * <p>
+     * 如果该值未设置或者为空那么将会自动使用{@link #scanPackage scanPackage}的值
+     *
+     * @see org.apache.ibatis.type.TypeAliasRegistry#registerAliases(String)
+     */
+    @Getter
+    @Setter
+    private String aliasScanPackage;
+    /**
      * 本地的xml配置文件，可以为空（为空时scanPackage不能为空，如果不为空时会采用config类和本地xml文件混合配置的方式配
      * 置Configuration）
      * <p>
