@@ -41,7 +41,7 @@ public class SpringDBUtil {
                                                                    String id, ResourceLoader loader, String
                                                                            scanPackage, String configLocation) {
         DataSource dataSource = buildDatasource(url, username, password);
-        DBConfig config = new DBConfig(dataSource, id, scanPackage);
+        MybatisConfig config = new MybatisConfig(dataSource, id, scanPackage);
         config.setConfigLocation(configLocation);
         return buildSqlSessionFactoryBean(loader, config);
     }
@@ -54,7 +54,7 @@ public class SpringDBUtil {
      * @param config mybatis配置
      * @return SqlSessionFactoryBean
      */
-    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(ResourceLoader loader, DBConfig config) {
+    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(ResourceLoader loader, MybatisConfig config) {
         log.info("开始构建SqlSessionFactoryBean");
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(config.getDataSource());

@@ -44,7 +44,7 @@ public class DBUtil {
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(String url, String username, String password, String id, String packages) {
-        return build(new DBConfig(buildDatasource(url, username, password), id, packages), null);
+        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages), null);
     }
 
     /**
@@ -60,7 +60,7 @@ public class DBUtil {
      */
     public static SqlSessionFactory build(String url, String username, String password, String id,
                                           ClassScannerByAnnotation scanner, String packages) {
-        return build(new DBConfig(buildDatasource(url, username, password), id, packages), scanner);
+        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages), scanner);
     }
 
     /**
@@ -69,7 +69,7 @@ public class DBUtil {
      * @param config mybatis配置
      * @return SqlSessionFactory
      */
-    public static SqlSessionFactory build(DBConfig config) {
+    public static SqlSessionFactory build(MybatisConfig config) {
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(buildConfiguration(config, null));
         return sqlSessionFactory;
     }
@@ -81,7 +81,7 @@ public class DBUtil {
      * @param scanner 查找带有指定注解的Class的扫描器（可以为null）
      * @return SqlSessionFactory
      */
-    public static SqlSessionFactory build(DBConfig config, ClassScannerByAnnotation scanner) {
+    public static SqlSessionFactory build(MybatisConfig config, ClassScannerByAnnotation scanner) {
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(buildConfiguration(config, scanner));
         return sqlSessionFactory;
     }
@@ -157,7 +157,7 @@ public class DBUtil {
      * @param scanner 查找带有指定注解的Class的扫描器（可以为null，为null时会使用默认的）
      * @return Configuration
      */
-    static Configuration buildConfiguration(DBConfig config, ClassScannerByAnnotation scanner) {
+    static Configuration buildConfiguration(MybatisConfig config, ClassScannerByAnnotation scanner) {
         log.info("通过DBConfig[{}]构建Configuration", config);
         String scanPackage = config.getScanPackage();
         String configLocation = config.getConfigLocation();
@@ -206,7 +206,7 @@ public class DBUtil {
      * @param scanner 查找带有指定注解的Class的扫描器（可以为null，为null时会使用默认的）
      * @return Configuration
      */
-    private static Configuration buildConfigurationByConfig(DBConfig config, ClassScannerByAnnotation scanner) {
+    private static Configuration buildConfigurationByConfig(MybatisConfig config, ClassScannerByAnnotation scanner) {
         //判断是否提供自定义scanner
         if (scanner == null) {
             scanner = ReflectUtil::getAllAnnotationPresentClass;

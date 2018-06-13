@@ -15,7 +15,7 @@ import javax.sql.DataSource;
  * @version 2018.06.08 10:42
  */
 @ToString
-public class DBConfig {
+public class MybatisConfig {
     /**
      * 要扫描的包的集合，会自动找到这些包下的ResultMap、mapper（可以为空，为空时configLocation不能为空，如果为空时将仅采
      * 用本地配置文件配置Configuration）
@@ -66,11 +66,11 @@ public class DBConfig {
     private String mappersLocation = "classpath*:**/*Mapper.xml";
 
 
-    public DBConfig() {
+    public MybatisConfig() {
         this(null, null, null);
     }
 
-    public DBConfig(DataSource dataSource, String id, String packages) {
+    public MybatisConfig(DataSource dataSource, String id, String packages) {
         this.dataSource = dataSource;
         this.id = id;
         this.scanPackage = packages;
