@@ -60,6 +60,8 @@ public class MybatisConfig {
     private String id;
     /**
      * mapper文件（xml）位置，默认所有Classpath下边所有后缀为Mapper.xml的文件都认为是Mapper
+     * <p>
+     * 该选项只有在集成spring的时候有用
      */
     @Getter
     @Setter
