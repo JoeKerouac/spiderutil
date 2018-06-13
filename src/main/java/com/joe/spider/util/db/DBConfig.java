@@ -74,5 +74,6 @@ public class DBConfig {
         this.dataSource = dataSource;
         this.id = id;
         this.scanPackage = packages;
+        this.aliasScanPackage = packages;
     }
 }
