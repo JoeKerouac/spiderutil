@@ -197,7 +197,7 @@ import java.util.List;
 /**
  * 数据库工具测试
  * <p>
- * 说明：需要给定的url中存在一个表叫history，有{@link History History}中的字段
+ * 说明：需要给定的url中存在一个表叫history，有上边定义的History中的字段
  *
  * @author joe
  * @version 2018.06.07 18:30
@@ -251,7 +251,7 @@ CREATE TABLE "history"(
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.joe.spider.util.db.HistoryMapper">
+<mapper namespace="com.joe.spider.util.db.UserMapper">
     <!-- 使用注解定义的resultMap -->
     <select id="getHistoryByResultMap" resultMap="default.History">
         select * from history limit 0 , 10

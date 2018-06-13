@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
  * @version 2018.06.08 10:31
  */
 @ResultMapDefine
-//@Alias("History")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

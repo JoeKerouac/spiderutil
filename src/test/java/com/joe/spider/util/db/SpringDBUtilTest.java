@@ -9,6 +9,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.sql.DataSource;
+
+import static com.joe.spider.util.db.DBUtil.buildDatasource;
 
 /**
  * SpringDBUtil测试
@@ -17,10 +24,12 @@ import org.springframework.core.io.ResourceLoader;
  * @version 2018.06.08 10:21
  */
 @Configuration
+@EnableTransactionManagement
 public class SpringDBUtilTest {
-    private HistoryMapper mapper;
+    private UserMapper mapper;
     private ApplicationContext context;
     private Dao dao;
+    private UserService userService;
 
     /**
      * 测试xml和注解混合使用
@@ -32,17 +41,42 @@ public class SpringDBUtilTest {
         System.out.println(dao.selectAllHistory());
     }
 
+    /**
+     * 测试事务
+     */
+    @Test
+    public void doTransactionalTest() {
+        //由于有异常抛出并不会实际的插入数据
+        try {
+            userService.createUser();
+        } catch (RuntimeException e) {
+
+        }
+    }
+
     @Before
     public void init() {
         context = new AnnotationConfigApplicationContext("com.joe.spider");
-        mapper = context.getBean(HistoryMapper.class);
+        mapper = context.getBean(UserMapper.class);
         dao = context.getBean(Dao.class);
+        userService = context.getBean(UserService.class);
     }
 
     @Bean
-    public SqlSessionFactoryBean sqlSessionFactory(ResourceLoader loader) {
-        return SpringDBUtil.buildSqlSessionFactoryBean(DBUtilTest.url, DBUtilTest.username, DBUtilTest.password,
-                "123", loader, "com.joe.spider",null);
+    public PlatformTransactionManager platformTransactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        DataSource dataSource = buildDatasource(DBUtilTest.url, DBUtilTest.username, DBUtilTest.password);
+        return dataSource;
+    }
+
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactory(ResourceLoader loader, DataSource dataSource) {
+        MybatisConfig config = new MybatisConfig(dataSource, "dev", "com.joe.spider");
+        return SpringDBUtil.buildSqlSessionFactoryBean(loader, config);
     }
 
     @Bean

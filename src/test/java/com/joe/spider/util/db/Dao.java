@@ -1,5 +1,6 @@
 package com.joe.spider.util.db;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
 
@@ -19,4 +20,13 @@ public interface Dao {
     @ResultMap("default.History")
     @Select("select * from history limit 0 , 10")
     List<History> selectAllHistory();
+
+    /**
+     * 插入用户
+     *
+     * @param user 要插入的用户
+     * @return 插入数量
+     */
+    @Insert("insert into user (id , name) values (#{id} , #{name})")
+    long insert(User user);
 }
