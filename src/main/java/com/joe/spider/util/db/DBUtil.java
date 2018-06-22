@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -207,6 +208,7 @@ public class DBUtil {
      * @return Configuration
      */
     private static Configuration buildConfigurationByConfig(MybatisConfig config, ClassScannerByAnnotation scanner) {
+       log.debug("开始构建Configuration");
         //判断是否提供自定义scanner
         if (scanner == null) {
             scanner = ReflectUtil::getAllAnnotationPresentClass;
@@ -226,6 +228,9 @@ public class DBUtil {
         //扫描类型别名并注册
         configuration.getTypeAliasRegistry().registerAliases(StringUtils.isEmpty(aliasScanPackage) ? scanPackage :
                 aliasScanPackage);
+        //添加插件
+        config.getInterceptors().stream().forEach(configuration::addInterceptor);
+        log.debug("Configuration构建完成");
         return configuration;
     }
 
@@ -285,7 +290,6 @@ public class DBUtil {
             }
         });
     }
-
 
     /**
      * 注解扫描器，扫描带有指定注解的类

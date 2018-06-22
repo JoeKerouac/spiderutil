@@ -38,7 +38,7 @@ public class SpringDBUtilTest {
     public void doMixTest() {
         System.out.println(mapper.getHistoryByResultType());
         System.out.println(mapper.getHistoryByResultMap());
-        System.out.println(dao.selectAllHistory());
+        System.out.println(dao.selectAllHistory1());
     }
 
     /**

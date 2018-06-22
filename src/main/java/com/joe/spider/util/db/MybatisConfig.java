@@ -3,8 +3,11 @@ package com.joe.spider.util.db;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.ibatis.plugin.Interceptor;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * mybatis配置
@@ -66,6 +69,10 @@ public class MybatisConfig {
     @Getter
     @Setter
     private String mappersLocation = "classpath*:**/*Mapper.xml";
+    /**
+     * mybatis拦截器插件
+     */
+    private List<Interceptor> interceptors;
 
 
     public MybatisConfig() {
@@ -77,5 +84,24 @@ public class MybatisConfig {
         this.id = id;
         this.scanPackage = packages;
         this.aliasScanPackage = packages;
+        this.interceptors = new ArrayList<>();
+    }
+
+    /**
+     * 添加拦截插件
+     *
+     * @param interceptor 插件
+     */
+    public void addInterceptor(Interceptor interceptor) {
+        interceptors.add(interceptor);
+    }
+
+    /**
+     * 获取所有Interceptor
+     *
+     * @return 所有Interceptor
+     */
+    public List<Interceptor> getInterceptors() {
+        return new ArrayList<>(interceptors);
     }
 }

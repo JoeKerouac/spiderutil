@@ -6,7 +6,7 @@ package com.joe.spider.util.db.exception;
  * @author joe
  * @version 2018.06.12 15:19
  */
-public class ConfigException extends RuntimeException {
+public class ConfigException extends DBException {
     public ConfigException() {
         super();
     }

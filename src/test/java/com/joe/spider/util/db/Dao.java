@@ -1,6 +1,7 @@
 package com.joe.spider.util.db;
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
 
@@ -18,8 +19,17 @@ public interface Dao {
      * @return 最多10条history
      */
     @ResultMap("default.History")
-    @Select("select * from history limit 0 , 10")
-    List<History> selectAllHistory();
+    @Select("select * from history where contain=#{contain}")
+    List<History> selectAllHistory(@Param("contain") boolean contain);
+
+    /**
+     * 查找最多10条history（ResultMap使用注解定义的ResultMap，如果需要也可以使用xml中定义的ResultMap）
+     *
+     * @return 最多10条history
+     */
+    @ResultMap("default.History")
+    @Select("select * from history")
+    List<History> selectAllHistory1();
 
     /**
      * 插入用户
