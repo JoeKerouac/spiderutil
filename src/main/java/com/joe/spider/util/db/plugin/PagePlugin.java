@@ -10,6 +10,7 @@ import com.joe.utils.data.PageData;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
+import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -20,6 +21,7 @@ import org.apache.ibatis.session.ResultHandler;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +61,7 @@ public class PagePlugin implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         log.debug("分页插件开始");
         //StatementHandler
-        StatementHandler handler = (StatementHandler) invocation.getTarget();
+        BaseStatementHandler handler = getBaseStatementHandler((StatementHandler) invocation.getTarget());
         //MappedStatement
         MappedStatement mappedStatement = getMappedStatement(handler);
 
@@ -76,12 +78,13 @@ public class PagePlugin implements Interceptor {
             String sql = boundSql.getSql();
             //PreparedStatement
             Statement statement = (Statement) invocation.getArgs()[0];
-            //ResultHandler
-            ResultHandler resultHandler = (ResultHandler) invocation.getArgs()[1];
             //参数
             Object parameterObject = parameterHandler.getParameterObject();
             //连接
             Connection connection = statement.getConnection();
+            //结果集处理器
+            ResultSetHandler resultSetHandler = BeanUtils.getProperty(handler, "resultSetHandler");
+
 
             log.debug("sql-id [{}] 对应的sql [{}] 需要分页", sqlId, sql);
             PageData<?> pageData;
@@ -113,10 +116,28 @@ public class PagePlugin implements Interceptor {
             parameterHandler.setParameters(pageStatement);
             parameterHandler.setParameters(countStatement);
 
+            log.debug("准备统计数量");
+            ResultSet resultSet = countStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt(1);
+            log.debug("统计数量为：{}", count);
 
-
+            log.debug("准备执行分页查询");
+            pageStatement.execute();
+            List<?> result = resultSetHandler.handleResultSets(pageStatement);
+            log.debug("分页查询执行结果为：{}", result);
         }
         return null;
+    }
+
+    private BaseStatementHandler getBaseStatementHandler(StatementHandler statementHandler) {
+        if (statementHandler instanceof BaseStatementHandler) {
+            return (BaseStatementHandler) statementHandler;
+        } else if (statementHandler instanceof RoutingStatementHandler) {
+            return BeanUtils.getProperty(statementHandler, "delegate");
+        } else {
+            throw new NoSupportedException("不支持的StatementHandler类型：" + statementHandler.getClass());
+        }
     }
 
     /**
