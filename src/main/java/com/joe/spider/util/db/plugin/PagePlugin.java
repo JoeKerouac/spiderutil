@@ -29,7 +29,22 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
- * 分页插件必须放在第一个插件
+ * 分页插件必须放在第一个插件，并且后续插件要获取结果只能通过invocation.proceed()获取而不能通过手动执行sql获取，该
+ * 插件会计算出结果。
+ * <p>
+ * <p>
+ * 插件使用说明：当前插件暂时只支持mysql，需要支持其他数据库请自行添加支持，使用时需要指定一个pageSqlId，指定一个pageSql，
+ * 指定一个countSql。
+ * <p>
+ * <p>
+ * 其中pageSqlId是需要拦截的sql的id的正则表达式（sql的id是mapper文件中声明的id），pageSql是{@link PageSql PageSql}的实
+ * 现类的全名（使用默认mysql时不需要指定），countSql是{@link CountSql CountSql}实现类的全名（使用默认mysql时不需要指定）
+ * ，如果不指定则默认使用mysql的实现。
+ * <p>
+ * <p>
+ * sql编写：需要分页的sql的id需要符合上述指定的正则pageSqlId，同时参数中必须包含{@link PageData PageData}，返回结果需要是
+ * List结果集，分页插件会自动把数据放入PageData，同时分页插件获取的页数就是传入的参数PageData中指定的页数，每页的最大值则
+ * 是传入参数PageData中指定的limit，最后PageData中的结果集和sql语句返回的一致。
  *
  * @author joe
  * @version 2018.06.22 17:09
@@ -44,10 +59,6 @@ public class PagePlugin implements Interceptor {
      */
     private String pageSqlId;
     /**
-     * 数据库方言
-     */
-    private String dialect;
-    /**
      * 分页sql
      */
     private PageSql pageSql;
@@ -55,6 +66,19 @@ public class PagePlugin implements Interceptor {
      * 统计sql
      */
     private CountSql countSql;
+
+    /**
+     * 分页插件构造器
+     *
+     * @param pageSqlId 需要拦截的分页sql id（在mapper中定义的sql的id），使用正则匹配
+     * @param pageSql   分页sql方言实现
+     * @param countSql  统计sql方言实现
+     */
+    public PagePlugin(String pageSqlId, PageSql pageSql, CountSql countSql) {
+        this.pageSqlId = pageSqlId;
+        this.pageSql = pageSql;
+        this.countSql = countSql;
+    }
 
 
     @Override
@@ -93,16 +117,16 @@ public class PagePlugin implements Interceptor {
                 List<?> list = map.values().parallelStream().filter(data -> (data != null && data.getClass().equals
                         (PageData.class))).limit(1).collect(Collectors.toList());
                 if (list.isEmpty()) {
-                    throw new IllegalArgumentException("参数中没有PageData");
+                    throw new IllegalArgumentException("参数中没有PageData，需要包含PageData");
                 }
                 pageData = (PageData) list.get(0);
             } else if (parameterObject instanceof PageData) {
-
                 pageData = (PageData) parameterObject;
             } else {
                 throw new NoSupportedException("不支持参数类型：" + parameterObject.getClass());
             }
 
+            int limit = pageData.getLimit();
             log.debug("准备生成分页sql和统计sql");
             String pageSqlStr = pageSql.page(sql, pageData.getCurrentPage(), pageData.getLimit());
             String countSqlStr = countSql.count(sql);
@@ -126,8 +150,16 @@ public class PagePlugin implements Interceptor {
             pageStatement.execute();
             List<?> result = resultSetHandler.handleResultSets(pageStatement);
             log.debug("分页查询执行结果为：{}", result);
+
+            int pageCount = count % limit == 0 ? (count / limit) : (count / limit + 1);
+            BeanUtils.setProperty(pageData, "datas", result);
+            pageData.setTotal(count);
+            pageData.setTotalPage(pageCount);
+            pageData.setHasNext(pageCount > pageData.getCurrentPage());
+            log.debug("分页结果为：[{}]", pageData);
+            return result;
         }
-        return null;
+        return invocation.proceed();
     }
 
     private BaseStatementHandler getBaseStatementHandler(StatementHandler statementHandler) {
@@ -165,22 +197,29 @@ public class PagePlugin implements Interceptor {
 
     @Override
     public void setProperties(Properties properties) {
-        Object dialectObj = properties.get("dialect");
-        dialect = String.valueOf(dialectObj == null ? "mysql" : dialectObj);
+        String pageSqlStr = String.valueOf(properties.get("pageSql"));
+        String countSqlStr = String.valueOf(properties.get("countSql"));
         pageSqlId = String.valueOf(properties.get("pageSqlId"));
 
-        log.info("分页插件方言为[{}]，分页sql为[{}]", dialect, pageSqlId);
+        log.info("分页插件分页sql实现为[{}]，统计sql实现为[{}]，分页sql的id正则为[{}]", pageSqlStr, countSqlStr, pageSqlId);
 
         if (StringUtils.isEmpty(pageSqlId)) {
             throw new NullPointerException("拦截sql不能为空");
         }
 
-        if ("mysql".equals(dialect)) {
-            pageSql = new Mysql();
-            countSql = new Mysql();
-        } else {
-            log.error("分页插件不支持方言[{}]", dialect);
-            throw new NoSupportedException("分页插件不支持方言[" + dialect + "]");
+        if ("mysql".equals(pageSqlStr) || "null".equals(pageSqlStr)) {
+            pageSqlStr = Mysql.class.getName();
+        }
+
+        if ("mysql".equals(countSqlStr) || "null".equals(countSqlStr)) {
+            pageSqlStr = Mysql.class.getName();
+        }
+
+        try {
+            pageSql = (PageSql) Class.forName(pageSqlStr).newInstance();
+            countSql = (CountSql) Class.forName(countSqlStr).newInstance();
+        } catch (Exception e) {
+            throw new NoSupportedException("不支持的方言实现：" + pageSqlStr + " 或 " + countSqlStr, e);
         }
     }
 }
