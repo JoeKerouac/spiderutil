@@ -5,6 +5,7 @@ import com.joe.spider.util.db.sql.CountSql;
 import com.joe.spider.util.db.sql.PageSql;
 import com.joe.spider.util.db.sql.dialect.Mysql;
 import com.joe.utils.common.BeanUtils;
+import com.joe.utils.common.ClassUtils;
 import com.joe.utils.common.StringUtils;
 import com.joe.utils.data.PageData;
 import lombok.NoArgsConstructor;
@@ -218,12 +219,16 @@ public class PagePlugin implements Interceptor {
         }
 
         if ("mysql".equals(countSqlStr) || "null".equals(countSqlStr)) {
-            pageSqlStr = Mysql.class.getName();
+            countSqlStr = Mysql.class.getName();
         }
 
         try {
-            pageSql = (PageSql) Class.forName(pageSqlStr).newInstance();
-            countSql = (CountSql) Class.forName(countSqlStr).newInstance();
+            if (pageSql == null) {
+                pageSql = (PageSql) ClassUtils.loadClass(pageSqlStr).newInstance();
+            }
+            if (countSql == null) {
+                countSql = (CountSql) ClassUtils.loadClass(countSqlStr).newInstance();
+            }
         } catch (Exception e) {
             throw new NoSupportedException("不支持的方言实现：" + pageSqlStr + " 或 " + countSqlStr, e);
         }
