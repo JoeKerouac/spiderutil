@@ -162,6 +162,12 @@ public class PagePlugin implements Interceptor {
         return invocation.proceed();
     }
 
+    /**
+     * 从StatementHandler中获取BaseStatementHandler（主要为了从中获取ParameterHandler，用于后续处理sql的参数）
+     *
+     * @param statementHandler StatementHandler
+     * @return BaseStatementHandler
+     */
     private BaseStatementHandler getBaseStatementHandler(StatementHandler statementHandler) {
         if (statementHandler instanceof BaseStatementHandler) {
             return (BaseStatementHandler) statementHandler;
