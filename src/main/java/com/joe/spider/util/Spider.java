@@ -1,10 +1,5 @@
 package com.joe.spider.util;
 
-import com.joe.http.IHttpClientUtil;
-import com.joe.utils.concurrent.LockService;
-import com.joe.utils.pattern.PatternUtils;
-import lombok.extern.slf4j.Slf4j;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -15,7 +10,12 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
-import java.util.regex.Pattern;
+
+import com.joe.http.IHttpClientUtil;
+import com.joe.utils.concurrent.LockService;
+import com.joe.utils.pattern.PatternUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 爬虫类，创建后直接添加任务即可，没有任务自动关闭
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class Spider {
-    private IHttpClientUtil client;
+    private IHttpClientUtil             client;
     /**
      * 域名对应的执行器
      */
@@ -33,11 +33,11 @@ public class Spider {
     /**
      * 特定域名对应的抓取时间间隔，单位毫秒
      */
-    private Map<String, Long> intervals;
+    private Map<String, Long>           intervals;
     /**
      * 默认执行时间间隔，单位毫秒
      */
-    private Long interval;
+    private Long                        interval;
 
     /**
      * 默认构造器
@@ -77,7 +77,6 @@ public class Spider {
         }
     }
 
-
     /**
      * 添加一个爬虫任务
      *
@@ -87,7 +86,7 @@ public class Spider {
      * @throws MalformedURLException URL错误
      */
     public <T extends Callback> void addTask(String url, T callback) throws InterruptedException,
-            MalformedURLException {
+                                                                     MalformedURLException {
         log.debug("添加任务[{}]", url);
         URL u = new URL(url);
         String host = getHost(u);
@@ -152,7 +151,8 @@ public class Spider {
         }
         String suffix;
         int index;
-        if (host.endsWith("com.cn") || host.endsWith("net.cn") || host.endsWith("org.cn") || host.endsWith("gov.cn")) {
+        if (host.endsWith("com.cn") || host.endsWith("net.cn") || host.endsWith("org.cn")
+            || host.endsWith("gov.cn")) {
             index = host.length() - 7;
             suffix = host.substring(index);
         } else {
@@ -170,17 +170,16 @@ public class Spider {
         return pre + suffix;
     }
 
-
     private static class SpiderExecutor extends Thread {
-        private static AtomicLong count = new AtomicLong(0);
+        private static AtomicLong       count    = new AtomicLong(0);
         /**
          * 该爬虫执行器对应的主机名
          */
-        private String host;
+        private String                  host;
         /**
          * 该爬虫的两次请求间的间隔，当小于等于0时表示请求完毕立即执行下一个
          */
-        private volatile long interval;
+        private volatile long           interval;
         /**
          * 该爬虫对应的任务队列
          */
@@ -188,20 +187,19 @@ public class Spider {
         /**
          * 最后一次请求的时间
          */
-        private long lastTime = 0;
+        private long                    lastTime = 0;
         /**
          * 最大空闲时间，超过该时间没有任务将会关闭，单位为毫秒
          */
-        private long idle;
+        private long                    idle;
         /**
          * 当前爬虫是否关闭
          */
-        private volatile boolean shutdown = true;
+        private volatile boolean        shutdown = true;
         /**
          * 关闭锁，保证线程正确被关闭
          */
-        private CountDownLatch lock;
-
+        private CountDownLatch          lock;
 
         /**
          * 默认构造器

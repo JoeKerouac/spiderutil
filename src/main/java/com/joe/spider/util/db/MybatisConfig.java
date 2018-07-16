@@ -1,13 +1,15 @@
 package com.joe.spider.util.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.apache.ibatis.plugin.Interceptor;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.plugin.Interceptor;
-
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * mybatis配置
@@ -27,7 +29,7 @@ public class MybatisConfig {
      */
     @Getter
     @Setter
-    private String scanPackage;
+    private String            scanPackage;
     /**
      * 别名扫描包，会自动将该包下所有除了匿名类、接口、成员类外的所有类注册别名，没有加@Alias注解的将会使用类名（不包括包名）作为别名。
      * <p>
@@ -37,7 +39,7 @@ public class MybatisConfig {
      */
     @Getter
     @Setter
-    private String aliasScanPackage;
+    private String            aliasScanPackage;
     /**
      * 本地的xml配置文件，可以为空（为空时scanPackage不能为空，如果不为空时会采用config类和本地xml文件混合配置的方式配
      * 置Configuration）
@@ -48,19 +50,19 @@ public class MybatisConfig {
      */
     @Getter
     @Setter
-    private String configLocation;
+    private String            configLocation;
     /**
      * 数据源
      */
     @Getter
     @Setter
-    private DataSource dataSource;
+    private DataSource        dataSource;
     /**
      * 使用java配置的环境ID（对应xml配置文件中environment标签的id属性）
      */
     @Getter
     @Setter
-    private String id;
+    private String            id;
     /**
      * mapper文件（xml）位置，默认所有Classpath下边所有后缀为Mapper.xml的文件都认为是Mapper
      * <p>
@@ -68,12 +70,11 @@ public class MybatisConfig {
      */
     @Getter
     @Setter
-    private String mappersLocation = "classpath*:**/*Mapper.xml";
+    private String            mappersLocation = "classpath*:**/*Mapper.xml";
     /**
      * mybatis拦截器插件
      */
     private List<Interceptor> interceptors;
-
 
     public MybatisConfig() {
         this(null, null, null);

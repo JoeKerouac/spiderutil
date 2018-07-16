@@ -23,7 +23,8 @@ public class ConfigException extends DBException {
         super(cause);
     }
 
-    protected ConfigException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected ConfigException(String message, Throwable cause, boolean enableSuppression,
+                              boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

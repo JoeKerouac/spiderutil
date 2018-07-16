@@ -1,15 +1,14 @@
 package com.joe.spider.util.db.plugin;
 
-import com.joe.spider.util.db.exception.NoSupportedException;
-import com.joe.spider.util.db.sql.CountSql;
-import com.joe.spider.util.db.sql.PageSql;
-import com.joe.spider.util.db.sql.dialect.Mysql;
-import com.joe.utils.common.BeanUtils;
-import com.joe.utils.common.ClassUtils;
-import com.joe.utils.common.StringUtils;
-import com.joe.utils.data.PageData;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
@@ -20,14 +19,17 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
+import com.joe.spider.util.db.exception.NoSupportedException;
+import com.joe.spider.util.db.sql.CountSql;
+import com.joe.spider.util.db.sql.PageSql;
+import com.joe.spider.util.db.sql.dialect.Mysql;
+import com.joe.utils.common.BeanUtils;
+import com.joe.utils.common.ClassUtils;
+import com.joe.utils.common.StringUtils;
+import com.joe.utils.data.PageData;
+
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 分页插件必须放在第一个插件，并且后续插件要获取结果只能通过invocation.proceed()获取而不能通过手动执行sql获取，该
@@ -50,19 +52,19 @@ import java.util.stream.Collectors;
  * @author joe
  * @version 2018.06.22 17:09
  */
-@Intercepts({@Signature(type = StatementHandler.class, method = "query", args = {Statement.class, ResultHandler
-        .class})})
+@Intercepts({ @Signature(type = StatementHandler.class, method = "query", args = { Statement.class,
+                                                                                   ResultHandler.class }) })
 @Slf4j
 @NoArgsConstructor
 public class PagePlugin implements Interceptor {
     /**
      * 需要拦截的分页sql id（在mapper中定义的sql的id），使用正则匹配
      */
-    private String pageSqlId;
+    private String   pageSqlId;
     /**
      * 分页sql
      */
-    private PageSql pageSql;
+    private PageSql  pageSql;
     /**
      * 统计sql
      */
@@ -81,18 +83,17 @@ public class PagePlugin implements Interceptor {
         this.countSql = countSql;
     }
 
-
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         log.debug("分页插件开始");
         //StatementHandler
-        BaseStatementHandler handler = getBaseStatementHandler((StatementHandler) invocation.getTarget());
+        BaseStatementHandler handler = getBaseStatementHandler(
+            (StatementHandler) invocation.getTarget());
         //MappedStatement
         MappedStatement mappedStatement = getMappedStatement(handler);
 
         //sql-id，定义在mapper中的slq语句的id
         String sqlId = mappedStatement.getId();
-
 
         if (sqlId.matches(pageSqlId)) {
             //参数处理器
@@ -110,13 +111,13 @@ public class PagePlugin implements Interceptor {
             //结果集处理器
             ResultSetHandler resultSetHandler = BeanUtils.getProperty(handler, "resultSetHandler");
 
-
             log.debug("sql-id [{}] 对应的sql [{}] 需要分页", sqlId, sql);
             PageData<?> pageData;
             if (parameterObject instanceof Map) {
                 Map<?, ?> map = (Map<?, ?>) parameterObject;
-                List<?> list = map.values().parallelStream().filter(data -> (data != null && data.getClass().equals
-                        (PageData.class))).limit(1).collect(Collectors.toList());
+                List<?> list = map.values().parallelStream()
+                    .filter(data -> (data != null && data.getClass().equals(PageData.class)))
+                    .limit(1).collect(Collectors.toList());
                 if (list.isEmpty()) {
                     throw new IllegalArgumentException("参数中没有PageData，需要包含PageData");
                 }
@@ -208,7 +209,8 @@ public class PagePlugin implements Interceptor {
         String countSqlStr = String.valueOf(properties.get("countSql"));
         pageSqlId = String.valueOf(properties.get("pageSqlId"));
 
-        log.info("分页插件分页sql实现为[{}]，统计sql实现为[{}]，分页sql的id正则为[{}]", pageSqlStr, countSqlStr, pageSqlId);
+        log.info("分页插件分页sql实现为[{}]，统计sql实现为[{}]，分页sql的id正则为[{}]", pageSqlStr, countSqlStr,
+            pageSqlId);
 
         if (StringUtils.isEmpty(pageSqlId)) {
             throw new NullPointerException("拦截sql不能为空");

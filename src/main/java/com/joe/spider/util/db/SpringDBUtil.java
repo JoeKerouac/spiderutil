@@ -1,7 +1,13 @@
 package com.joe.spider.util.db;
 
-import com.joe.utils.common.StringUtils;
-import lombok.extern.slf4j.Slf4j;
+import static com.joe.spider.util.db.DBUtil.buildConfiguration;
+import static com.joe.spider.util.db.DBUtil.buildDatasource;
+
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import javax.sql.DataSource;
+
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -9,12 +15,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.stream.Stream;
+import com.joe.utils.common.StringUtils;
 
-import static com.joe.spider.util.db.DBUtil.buildConfiguration;
-import static com.joe.spider.util.db.DBUtil.buildDatasource;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 集成spring的DButil，如果不需要集成spring只需使用{@link DBUtil DBUtil}
@@ -37,15 +40,16 @@ public class SpringDBUtil {
      * @param configLocation 本地xml配置文件
      * @return SqlSessionFactoryBean
      */
-    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(String url, String username, String password,
-                                                                   String id, ResourceLoader loader, String
-                                                                           scanPackage, String configLocation) {
+    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(String url, String username,
+                                                                   String password, String id,
+                                                                   ResourceLoader loader,
+                                                                   String scanPackage,
+                                                                   String configLocation) {
         DataSource dataSource = buildDatasource(url, username, password);
         MybatisConfig config = new MybatisConfig(dataSource, id, scanPackage);
         config.setConfigLocation(configLocation);
         return buildSqlSessionFactoryBean(loader, config);
     }
-
 
     /**
      * 构建SqlSessionFactoryBean（spring中需要使用）
@@ -54,7 +58,8 @@ public class SpringDBUtil {
      * @param config mybatis配置
      * @return SqlSessionFactoryBean
      */
-    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(ResourceLoader loader, MybatisConfig config) {
+    public static SqlSessionFactoryBean buildSqlSessionFactoryBean(ResourceLoader loader,
+                                                                   MybatisConfig config) {
         log.info("开始构建SqlSessionFactoryBean");
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(config.getDataSource());
@@ -67,10 +72,12 @@ public class SpringDBUtil {
         String mapperLocation = config.getMappersLocation();
         if (!StringUtils.isEmpty(mapperLocation)) {
             log.debug("mapper文件位置为：[{}]", mapperLocation);
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(loader);
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
+                loader);
             try {
                 Resource[] resources = resolver.getResources(mapperLocation);
-                Stream.of(resources).parallel().forEach(r -> log.debug("添加mapper文件[{}]", r.getDescription()));
+                Stream.of(resources).parallel()
+                    .forEach(r -> log.debug("添加mapper文件[{}]", r.getDescription()));
                 bean.setMapperLocations(resources);
             } catch (IOException e) {
                 log.warn("mapper文件[{}]加载失败", mapperLocation, e);
@@ -89,8 +96,8 @@ public class SpringDBUtil {
      *                                  来处理生成bean，占用多余内存）
      * @return MapperScannerConfigurer
      */
-    public static MapperScannerConfigurer buildMapperScannerConfigurer(String sqlSessionFactoryBeanName, String
-            basePackage) {
+    public static MapperScannerConfigurer buildMapperScannerConfigurer(String sqlSessionFactoryBeanName,
+                                                                       String basePackage) {
         MapperScannerConfigurer configurer = new MapperScannerConfigurer();
         configurer.setSqlSessionFactoryBeanName(sqlSessionFactoryBeanName);
         configurer.setBasePackage(basePackage);

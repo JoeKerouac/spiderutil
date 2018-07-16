@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * @version 2018.06.07 09:53
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Documented
 public @interface ResultMapDefine {
     /**

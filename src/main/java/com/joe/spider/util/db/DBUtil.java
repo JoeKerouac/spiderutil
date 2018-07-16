@@ -1,5 +1,23 @@
 package com.joe.spider.util.db;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.filter.logging.Slf4jLogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
@@ -7,24 +25,8 @@ import com.joe.spider.util.db.exception.ConfigException;
 import com.joe.utils.common.ResourceHelper;
 import com.joe.utils.common.StringUtils;
 import com.joe.utils.type.ReflectUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
-import javax.sql.DataSource;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据库工具，如果需要集成spring可以使用{@link SpringDBUtil SpringDBUtil}
@@ -44,8 +46,10 @@ public class DBUtil {
      * @param packages 要扫描的包（会自动将带扫描的包下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
      * @return SqlSessionFactory
      */
-    public static SqlSessionFactory build(String url, String username, String password, String id, String packages) {
-        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages), null);
+    public static SqlSessionFactory build(String url, String username, String password, String id,
+                                          String packages) {
+        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages),
+            null);
     }
 
     /**
@@ -61,7 +65,8 @@ public class DBUtil {
      */
     public static SqlSessionFactory build(String url, String username, String password, String id,
                                           ClassScannerByAnnotation scanner, String packages) {
-        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages), scanner);
+        return build(new MybatisConfig(buildDatasource(url, username, password), id, packages),
+            scanner);
     }
 
     /**
@@ -71,7 +76,8 @@ public class DBUtil {
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(MybatisConfig config) {
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(buildConfiguration(config, null));
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
+            .build(buildConfiguration(config, null));
         return sqlSessionFactory;
     }
 
@@ -83,7 +89,8 @@ public class DBUtil {
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(MybatisConfig config, ClassScannerByAnnotation scanner) {
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(buildConfiguration(config, scanner));
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
+            .build(buildConfiguration(config, scanner));
         return sqlSessionFactory;
     }
 
@@ -158,7 +165,8 @@ public class DBUtil {
      * @param scanner 查找带有指定注解的Class的扫描器（可以为null，为null时会使用默认的）
      * @return Configuration
      */
-    static Configuration buildConfiguration(MybatisConfig config, ClassScannerByAnnotation scanner) {
+    static Configuration buildConfiguration(MybatisConfig config,
+                                            ClassScannerByAnnotation scanner) {
         log.info("通过DBConfig[{}]构建Configuration", config);
         String scanPackage = config.getScanPackage();
         String configLocation = config.getConfigLocation();
@@ -185,15 +193,15 @@ public class DBUtil {
             log.info("同时存在java配置的Configuration和XML配置的Configuration，合并两个Configuration");
             //合并resultMap，由于Configuration放入resultmap的时候会放入两份，所以要先去重
             Map<String, ResultMap> map = new HashMap<>();
-            scanConfiguration.getResultMaps().parallelStream().forEach(resultMap -> map.put(resultMap.getId(),
-                    resultMap));
+            scanConfiguration.getResultMaps().parallelStream()
+                .forEach(resultMap -> map.put(resultMap.getId(), resultMap));
             map.values().parallelStream().forEach(configuration::addResultMap);
             //合并的Mapper
-            scanConfiguration.getMapperRegistry().getMappers().parallelStream().forEach(configuration
-                    .getMapperRegistry()::addMapper);
+            scanConfiguration.getMapperRegistry().getMappers().parallelStream()
+                .forEach(configuration.getMapperRegistry()::addMapper);
             //合并别名
-            scanConfiguration.getTypeAliasRegistry().getTypeAliases().forEach(configuration.getTypeAliasRegistry()
-                    ::registerAlias);
+            scanConfiguration.getTypeAliasRegistry().getTypeAliases()
+                .forEach(configuration.getTypeAliasRegistry()::registerAlias);
             //使用Config中的Environment
             configuration.setEnvironment(scanConfiguration.getEnvironment());
         }
@@ -207,14 +215,16 @@ public class DBUtil {
      * @param scanner 查找带有指定注解的Class的扫描器（可以为null，为null时会使用默认的）
      * @return Configuration
      */
-    private static Configuration buildConfigurationByConfig(MybatisConfig config, ClassScannerByAnnotation scanner) {
-       log.debug("开始构建Configuration");
+    private static Configuration buildConfigurationByConfig(MybatisConfig config,
+                                                            ClassScannerByAnnotation scanner) {
+        log.debug("开始构建Configuration");
         //判断是否提供自定义scanner
         if (scanner == null) {
             scanner = ReflectUtil::getAllAnnotationPresentClass;
         }
         TransactionFactory transactionFactory = new JdbcTransactionFactory();
-        Environment environment = new Environment(config.getId(), transactionFactory, config.getDataSource());
+        Environment environment = new Environment(config.getId(), transactionFactory,
+            config.getDataSource());
         Configuration configuration = new Configuration(environment);
 
         String scanPackage = config.getScanPackage();
@@ -226,8 +236,8 @@ public class DBUtil {
         //扫描mapper
         scanMapper(configuration, scanner, scanPackage);
         //扫描类型别名并注册
-        configuration.getTypeAliasRegistry().registerAliases(StringUtils.isEmpty(aliasScanPackage) ? scanPackage :
-                aliasScanPackage);
+        configuration.getTypeAliasRegistry().registerAliases(
+            StringUtils.isEmpty(aliasScanPackage) ? scanPackage : aliasScanPackage);
         //添加插件
         config.getInterceptors().stream().forEach(configuration::addInterceptor);
         log.debug("Configuration构建完成");
@@ -251,7 +261,8 @@ public class DBUtil {
      * @param scanner       查找带有指定注解的Class的扫描器
      * @param packages      包集合
      */
-    static void scanMapper(Configuration configuration, ClassScannerByAnnotation scanner, String... packages) {
+    static void scanMapper(Configuration configuration, ClassScannerByAnnotation scanner,
+                           String... packages) {
         List<Class<?>> mappers = scanMapper(false, scanner, packages);
         mappers.forEach(configuration::addMapper);
     }
@@ -264,10 +275,12 @@ public class DBUtil {
      * @param packages 包集合
      * @return 扫描的mapper
      */
-    static List<Class<?>> scanMapper(boolean useXml, ClassScannerByAnnotation scanner, String... packages) {
+    static List<Class<?>> scanMapper(boolean useXml, ClassScannerByAnnotation scanner,
+                                     String... packages) {
         List<Class<?>> mappers = scanner.scan(Mapper.class, packages);
-        mappers = mappers.stream().filter(mapper -> mapper.getAnnotation(Mapper.class).useXml() == useXml).collect
-                (Collectors.toList());
+        mappers = mappers.stream()
+            .filter(mapper -> mapper.getAnnotation(Mapper.class).useXml() == useXml)
+            .collect(Collectors.toList());
         log.debug("扫描到的Mapper列表为：{}", mappers);
         return mappers;
     }
@@ -279,7 +292,8 @@ public class DBUtil {
      * @param scanner       查找带有指定注解的Class的扫描器
      * @param packages      包集合
      */
-    static void scanResutlMap(Configuration configuration, ClassScannerByAnnotation scanner, String... packages) {
+    static void scanResutlMap(Configuration configuration, ClassScannerByAnnotation scanner,
+                              String... packages) {
         log.debug("开始扫描包{}下的ResultMap列表", packages);
         List<Class<?>> resultMaps = scanner.scan(ResultMapDefine.class, packages);
         log.debug("扫描到的ResultMap列表为：{}", resultMaps);

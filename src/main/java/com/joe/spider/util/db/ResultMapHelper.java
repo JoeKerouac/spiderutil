@@ -1,16 +1,18 @@
 package com.joe.spider.util.db;
 
-import com.joe.utils.common.BeanUtils;
-import com.joe.utils.common.StringUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
-import org.apache.ibatis.session.Configuration;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.session.Configuration;
+
+import com.joe.utils.common.BeanUtils;
+import com.joe.utils.common.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ResultMapping辅助生成工具
@@ -39,7 +41,6 @@ public class ResultMapHelper {
             return null;
         }
 
-
         Field[] fields = BeanUtils.getAllFields(resultType);
         if (fields == null || fields.length == 0) {
             log.warn("类型[{}]没有声明任何字段", resultType);
@@ -66,7 +67,6 @@ public class ResultMapHelper {
                 continue;
             }
 
-
             log.debug("构建字段[{}]对应的mapping", fieldName);
             Property property = field.getAnnotation(Property.class);
             String name, alias;
@@ -77,13 +77,15 @@ public class ResultMapHelper {
                 alias = property.value();
             }
 
-            ResultMapping.Builder mappingBuilder = new ResultMapping.Builder(configuration, name, alias, field
-                    .getType());
+            ResultMapping.Builder mappingBuilder = new ResultMapping.Builder(configuration, name,
+                alias, field.getType());
             mappings.add(mappingBuilder.build());
         }
 
         ResultMapDefine define = resultType.getAnnotation(ResultMapDefine.class);
-        String id = StringUtils.isEmpty(define.value()) ? DEFAULT_NAMESPACE + resultType.getSimpleName() : define.value();
+        String id = StringUtils.isEmpty(define.value())
+            ? DEFAULT_NAMESPACE + resultType.getSimpleName()
+            : define.value();
         return buildResultMap(configuration, id, resultType, mappings);
     }
 
@@ -96,8 +98,8 @@ public class ResultMapHelper {
      * @param mappings      pojo字段的mapping集合
      * @return ResultMap
      */
-    static ResultMap buildResultMap(Configuration configuration, String id, Class<?> resultType, List<ResultMapping>
-            mappings) {
+    static ResultMap buildResultMap(Configuration configuration, String id, Class<?> resultType,
+                                    List<ResultMapping> mappings) {
         return new ResultMap.Builder(configuration, id, resultType, mappings).build();
     }
 }

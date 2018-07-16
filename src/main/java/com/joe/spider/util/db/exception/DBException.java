@@ -21,7 +21,8 @@ public class DBException extends RuntimeException {
         super(cause);
     }
 
-    protected DBException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected DBException(String message, Throwable cause, boolean enableSuppression,
+                          boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

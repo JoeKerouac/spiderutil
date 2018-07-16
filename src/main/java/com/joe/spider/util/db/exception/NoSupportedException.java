@@ -23,8 +23,8 @@ public class NoSupportedException extends DBException {
         super(cause);
     }
 
-    protected NoSupportedException(String message, Throwable cause, boolean enableSuppression, boolean
-            writableStackTrace) {
+    protected NoSupportedException(String message, Throwable cause, boolean enableSuppression,
+                                   boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

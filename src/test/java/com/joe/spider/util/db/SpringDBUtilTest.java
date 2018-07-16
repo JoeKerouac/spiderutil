@@ -1,5 +1,9 @@
 package com.joe.spider.util.db;
 
+import static com.joe.spider.util.db.DBUtil.buildDatasource;
+
+import javax.sql.DataSource;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -13,10 +17,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
-
-import static com.joe.spider.util.db.DBUtil.buildDatasource;
-
 /**
  * SpringDBUtil测试
  *
@@ -26,10 +26,10 @@ import static com.joe.spider.util.db.DBUtil.buildDatasource;
 @Configuration
 @EnableTransactionManagement
 public class SpringDBUtilTest {
-    private UserMapper mapper;
+    private UserMapper         mapper;
     private ApplicationContext context;
-    private Dao dao;
-    private UserService userService;
+    private Dao                dao;
+    private UserService        userService;
 
     /**
      * 测试xml和注解混合使用
@@ -69,7 +69,8 @@ public class SpringDBUtilTest {
 
     @Bean
     public DataSource dataSource() {
-        DataSource dataSource = buildDatasource(DBUtilTest.url, DBUtilTest.username, DBUtilTest.password);
+        DataSource dataSource = buildDatasource(DBUtilTest.url, DBUtilTest.username,
+            DBUtilTest.password);
         return dataSource;
     }
 

@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class History {
-    private String id;
+    private String  id;
     private boolean contain;
-    private String ip;
-    private String time;
+    private String  ip;
+    private String  time;
     /**
      * 数据库中该字段名为keyboard，映射到pojo中为key
      */
     @Property("keyboard")
-    private String key;
+    private String  key;
 }

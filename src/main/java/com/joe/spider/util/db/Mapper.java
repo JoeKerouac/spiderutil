@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author joe
  * @version 2017.12.17 15:06
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Mapper {

@@ -1,9 +1,10 @@
 package com.joe.spider.util.db;
 
-import com.joe.utils.common.Tools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.joe.utils.common.Tools;
 
 /**
  * @author joe
@@ -14,7 +15,7 @@ public class UserService {
     @Autowired
     private UserMapper mapper;
     @Autowired
-    private Dao dao;
+    private Dao        dao;
 
     @Transactional
     public void createUser() {
