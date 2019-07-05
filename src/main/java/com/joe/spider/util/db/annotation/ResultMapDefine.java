@@ -1,4 +1,4 @@
-package com.joe.spider.util.db;
+package com.joe.spider.util.db.annotation;
 
 import java.lang.annotation.*;
 

@@ -23,10 +23,10 @@ import com.joe.spider.util.db.exception.NoSupportedException;
 import com.joe.spider.util.db.sql.CountSql;
 import com.joe.spider.util.db.sql.PageSql;
 import com.joe.spider.util.db.sql.dialect.Mysql;
-import com.joe.utils.common.BeanUtils;
-import com.joe.utils.common.ClassUtils;
-import com.joe.utils.common.StringUtils;
+import com.joe.utils.common.string.StringUtils;
 import com.joe.utils.data.PageData;
+import com.joe.utils.reflect.BeanUtils;
+import com.joe.utils.reflect.ClassUtils;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

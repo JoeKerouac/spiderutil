@@ -5,12 +5,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.joe.spider.util.db.annotation.Property;
+import com.joe.spider.util.db.annotation.ResultMapDefine;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 
-import com.joe.utils.common.BeanUtils;
-import com.joe.utils.common.StringUtils;
+import com.joe.utils.common.string.StringUtils;
+import com.joe.utils.reflect.ReflectUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +43,7 @@ public class ResultMapHelper {
             return null;
         }
 
-        Field[] fields = BeanUtils.getAllFields(resultType);
+        Field[] fields = ReflectUtil.getAllFields(resultType);
         if (fields == null || fields.length == 0) {
             log.warn("类型[{}]没有声明任何字段", resultType);
             return null;

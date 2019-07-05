@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import com.joe.spider.util.db.annotation.Mapper;
+import com.joe.spider.util.db.annotation.ResultMapDefine;
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.ResultMap;
@@ -23,8 +25,8 @@ import com.alibaba.druid.filter.logging.Slf4jLogFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.joe.spider.util.db.exception.ConfigException;
 import com.joe.utils.common.ResourceHelper;
-import com.joe.utils.common.StringUtils;
-import com.joe.utils.type.ReflectUtil;
+import com.joe.utils.common.string.StringUtils;
+import com.joe.utils.reflect.ReflectUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +45,7 @@ public class DBUtil {
      * @param username 数据库用户名
      * @param password 数据库密码
      * @param id       SqlSessionFactory的ID
-     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
+     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link Mapper}注解的类，将该类注册为mapper
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(String url, String username, String password, String id,
@@ -60,7 +62,7 @@ public class DBUtil {
      * @param password 数据库密码
      * @param id       SqlSessionFactory的ID
      * @param scanner  查找带有指定注解的Class的扫描器（可以为null）
-     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link com.joe.spider.util.db.Mapper}注解的类，将该类注册为mapper
+     * @param packages 要扫描的包（会自动将带扫描的包下面带{@link Mapper}注解的类，将该类注册为mapper
      * @return SqlSessionFactory
      */
     public static SqlSessionFactory build(String url, String username, String password, String id,

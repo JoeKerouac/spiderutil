@@ -15,7 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import com.joe.utils.common.StringUtils;
+import com.joe.utils.common.string.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -2,7 +2,7 @@ package com.joe.spider.util.db.sql.dialect;
 
 import com.joe.spider.util.db.sql.CountSql;
 import com.joe.spider.util.db.sql.PageSql;
-import com.joe.utils.common.StringUtils;
+import com.joe.utils.common.string.StringUtils;
 
 /**
  * mysql方言
