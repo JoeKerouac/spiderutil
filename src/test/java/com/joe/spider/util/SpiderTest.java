@@ -7,6 +7,7 @@ import org.junit.Test;
  * @version 2018.03.08 17:34
  */
 public class SpiderTest {
+
     /**
      * 测试爬虫以及爬虫使用示例
      *
@@ -17,4 +18,5 @@ public class SpiderTest {
         Spider spider = new Spider(10);
         spider.addTask("http://127.0.0.1:12345/api/getUsers", System.out::println);
     }
+
 }

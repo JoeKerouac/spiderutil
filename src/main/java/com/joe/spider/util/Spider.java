@@ -8,7 +8,6 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
 import com.joe.http.IHttpClientUtil;
@@ -25,15 +24,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class Spider {
+
     private IHttpClientUtil             client;
+
     /**
      * 域名对应的执行器
      */
     private Map<String, SpiderExecutor> executors;
+
     /**
      * 特定域名对应的抓取时间间隔，单位毫秒
      */
     private Map<String, Long>           intervals;
+
     /**
      * 默认执行时间间隔，单位毫秒
      */
@@ -171,31 +174,37 @@ public class Spider {
     }
 
     private static class SpiderExecutor extends Thread {
-        private static AtomicLong       count    = new AtomicLong(0);
+
         /**
          * 该爬虫执行器对应的主机名
          */
         private String                  host;
+
         /**
          * 该爬虫的两次请求间的间隔，当小于等于0时表示请求完毕立即执行下一个
          */
         private volatile long           interval;
+
         /**
          * 该爬虫对应的任务队列
          */
         private BlockingDeque<Runnable> deque;
+
         /**
          * 最后一次请求的时间
          */
         private long                    lastTime = 0;
+
         /**
          * 最大空闲时间，超过该时间没有任务将会关闭，单位为毫秒
          */
         private long                    idle;
+
         /**
          * 当前爬虫是否关闭
          */
         private volatile boolean        shutdown = true;
+
         /**
          * 关闭锁，保证线程正确被关闭
          */
