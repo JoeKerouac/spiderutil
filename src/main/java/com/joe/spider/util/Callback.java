@@ -7,6 +7,7 @@ package com.joe.spider.util;
  * @version 2017.12.24 14:47
  */
 public interface Callback {
+
     /**
      * 当网络请求完毕后回调该方法
      *
