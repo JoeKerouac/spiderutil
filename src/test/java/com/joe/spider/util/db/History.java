@@ -1,5 +1,7 @@
 package com.joe.spider.util.db;
 
+import com.joe.spider.util.db.annotation.Property;
+import com.joe.spider.util.db.annotation.ResultMapDefine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

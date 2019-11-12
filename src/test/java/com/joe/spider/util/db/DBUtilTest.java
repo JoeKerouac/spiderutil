@@ -24,7 +24,7 @@ public class DBUtilTest {
     /**
      * 数据库连接URL
      */
-    static String             url      = "jdbc:mysql://dbserver:9999/movie?characterEncoding=utf-8&allowMultiQueries=true";
+    static String             url      = "jdbc:mysql://dbserver:3306/movie?characterEncoding=utf-8";
     /**
      * 数据库用户名
      */
@@ -50,12 +50,27 @@ public class DBUtilTest {
      * @throws Exception Exception
      */
     @Test
-    public void dbTest() throws Exception {
+    public void dbTest() {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             Dao dao = session.getMapper(Dao.class);
 
             List<History> histories = dao.selectAllHistory();
             Assert.assertNotEquals(0, histories.size());
+        }
+    }
+
+    @Test
+    public void doInsert() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            Dao dao = session.getMapper(Dao.class);
+
+            History history = new History();
+            history.setContain(true);
+            history.setId("id123");
+            history.setIp("ip123456");
+            history.setTime("time123456");
+            history.setKey("keyboard123123");
+            Assert.assertEquals(dao.insertHistory(history), 1);
         }
     }
 
@@ -73,7 +88,7 @@ public class DBUtilTest {
             pageData.setCurrentPage(0);
             pageData.setLimit(3);
 
-            List<History> histories = dao.selectHistoryAndPage(pageData);
+            List<History> histories = dao.selectHistoryAndPage("123","123", pageData);
             Assert.assertEquals(pageData.getDatas().size(), histories.size());
         }
     }

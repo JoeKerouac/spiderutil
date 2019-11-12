@@ -1,5 +1,26 @@
 package com.joe.spider.util.db.plugin;
 
+import com.joe.spider.util.db.exception.NoSupportedException;
+import com.joe.spider.util.db.sql.CountSql;
+import com.joe.spider.util.db.sql.PageSql;
+import com.joe.spider.util.db.sql.dialect.Mysql;
+import com.joe.utils.common.string.StringUtils;
+import com.joe.utils.data.PageData;
+import com.joe.utils.reflect.BeanUtils;
+import com.joe.utils.reflect.clazz.ClassUtils;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.executor.parameter.ParameterHandler;
+import org.apache.ibatis.executor.resultset.ResultSetHandler;
+import org.apache.ibatis.executor.statement.BaseStatementHandler;
+import org.apache.ibatis.executor.statement.RoutingStatementHandler;
+import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,54 +30,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.ibatis.executor.parameter.ParameterHandler;
-import org.apache.ibatis.executor.resultset.ResultSetHandler;
-import org.apache.ibatis.executor.statement.BaseStatementHandler;
-import org.apache.ibatis.executor.statement.RoutingStatementHandler;
-import org.apache.ibatis.executor.statement.StatementHandler;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.*;
-import org.apache.ibatis.session.ResultHandler;
-
-import com.joe.spider.util.db.exception.NoSupportedException;
-import com.joe.spider.util.db.sql.CountSql;
-import com.joe.spider.util.db.sql.PageSql;
-import com.joe.spider.util.db.sql.dialect.Mysql;
-import com.joe.utils.common.string.StringUtils;
-import com.joe.utils.data.PageData;
-import com.joe.utils.reflect.BeanUtils;
-import com.joe.utils.reflect.clazz.ClassUtils;
-
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 /**
- * 分页插件必须放在第一个插件，并且后续插件要获取结果只能通过invocation.proceed()获取而不能通过手动执行sql获取，该
- * 插件会计算出结果。
- * <p>
- * <p>
- * 插件使用说明：当前插件暂时只支持mysql，需要支持其他数据库请自行添加支持，使用时需要指定一个pageSqlId，指定一个pageSql，
- * 指定一个countSql。
- * <p>
- * <p>
- * 其中pageSqlId是需要拦截的sql的id的正则表达式（sql的id是mapper文件中声明的id），pageSql是{@link PageSql PageSql}的实
- * 现类的全名（使用默认mysql时不需要指定），countSql是{@link CountSql CountSql}实现类的全名（使用默认mysql时不需要指定）
- * ，如果不指定则默认使用mysql的实现。
- * <p>
- * <p>
- * sql编写：需要分页的sql的id需要符合上述指定的正则pageSqlId，同时参数中必须包含{@link PageData PageData}，返回结果需要是
- * List结果集，分页插件会自动把数据放入PageData，同时分页插件获取的页数就是传入的参数PageData中指定的页数，每页的最大值则
- * 是传入参数PageData中指定的limit，最后PageData中的结果集和sql语句返回的一致。
- *
- * @author joe
- * @version 2018.06.22 17:09
+ * @author JoeKerouac
+ * @version 2019年07月03日 15:04
  */
-@Intercepts({ @Signature(type = StatementHandler.class, method = "query", args = { Statement.class,
-                                                                                   ResultHandler.class }) })
 @Slf4j
 @NoArgsConstructor
-public class PagePlugin implements Interceptor {
+public class AbstractPlugin implements Interceptor {
     /**
      * 需要拦截的分页sql id（在mapper中定义的sql的id），使用正则匹配
      */
@@ -64,7 +44,7 @@ public class PagePlugin implements Interceptor {
     /**
      * 分页sql
      */
-    private PageSql  pageSql;
+    private PageSql pageSql;
     /**
      * 统计sql
      */
@@ -77,7 +57,7 @@ public class PagePlugin implements Interceptor {
      * @param pageSql   分页sql方言实现
      * @param countSql  统计sql方言实现
      */
-    public PagePlugin(String pageSqlId, PageSql pageSql, CountSql countSql) {
+    public AbstractPlugin(String pageSqlId, PageSql pageSql, CountSql countSql) {
         this.pageSqlId = pageSqlId;
         this.pageSql = pageSql;
         this.countSql = countSql;
@@ -88,7 +68,7 @@ public class PagePlugin implements Interceptor {
         log.debug("分页插件开始");
         //StatementHandler
         BaseStatementHandler handler = getBaseStatementHandler(
-            (StatementHandler) invocation.getTarget());
+                (StatementHandler) invocation.getTarget());
         //MappedStatement
         MappedStatement mappedStatement = getMappedStatement(handler);
 
@@ -116,8 +96,8 @@ public class PagePlugin implements Interceptor {
             if (parameterObject instanceof Map) {
                 Map<?, ?> map = (Map<?, ?>) parameterObject;
                 List<?> list = map.values().parallelStream()
-                    .filter(data -> (data != null && data.getClass().equals(PageData.class)))
-                    .limit(1).collect(Collectors.toList());
+                        .filter(data -> (data != null && data.getClass().equals(PageData.class)))
+                        .limit(1).collect(Collectors.toList());
                 if (list.isEmpty()) {
                     throw new IllegalArgumentException("参数中没有PageData，需要包含PageData");
                 }
@@ -210,7 +190,7 @@ public class PagePlugin implements Interceptor {
         pageSqlId = String.valueOf(properties.get("pageSqlId"));
 
         log.info("分页插件分页sql实现为[{}]，统计sql实现为[{}]，分页sql的id正则为[{}]", pageSqlStr, countSqlStr,
-            pageSqlId);
+                pageSqlId);
 
         if (StringUtils.isEmpty(pageSqlId)) {
             throw new NullPointerException("拦截sql不能为空");
